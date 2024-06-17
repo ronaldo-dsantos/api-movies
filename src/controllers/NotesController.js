@@ -12,14 +12,14 @@ class NotesController{
       throw new AppError("Informe uma nota de 1 a 5.")      
     }  
     
-    const [ note_id ] = await knex("notes").insert({ // Inserindo a nota no banco de dados e armazenando o note_id da nota criada, estamos colocando ele dentro de um array porque o knex está devolvendo o note_id dentro de um array
+    const [ note_id ] = await knex("notes").insert({ 
       title,
       description,
       rating: ratingIsNumber,
       user_id
     })
 
-    const tagsInsert = tags.map(name => { // Percorrendo cada tag informada e para cada tag retornar o o note_id, user_id e o name
+    const tagsInsert = tags.map(name => { 
       return {
         note_id,
         user_id,
@@ -27,7 +27,7 @@ class NotesController{
       }
     })
 
-    await knex("tags").insert(tagsInsert) // Inserindo as tags no banco de dados com os dados capturados acima, como estamos passando um vetor ele já entende que é para inserir todos de uma vez
+    await knex("tags").insert(tagsInsert) 
 
     response.json()
   }
@@ -35,10 +35,10 @@ class NotesController{
   async show(request, response){
     const { id } = request.params
 
-    const note = await knex("notes").where({ id }).first() // Selecionando as notas onde o id seja iguar ao id informado e pegar a primeira
-    const tags = await knex("tags").where({ note_id: id }).orderBy("name") // Selecionando as tags onde o note_id seja igual ao id informado e ordenar por nome
+    const note = await knex("notes").where({ id }).first() 
+    const tags = await knex("tags").where({ note_id: id }).orderBy("name") 
 
-    return response.json({ // Retornar um objeto despejando todas as notas e as tags
+    return response.json({ 
       ...note,
       tags
     })
@@ -47,7 +47,7 @@ class NotesController{
   async delete(request, response){
     const { id } = request.params
 
-    await knex("notes").where({ id }).delete() // Acessar a tabela notas onde o id é igual ao id informado e deletar
+    await knex("notes").where({ id }).delete() 
 
     return response.json()  
   }
@@ -57,8 +57,8 @@ class NotesController{
 
     let notes
 
-    if (tags) { // Se foi informado uma tag faça a busca por tag
-      const filterTags = tags.split(',').map(tag => tag) // convertendo a tags de um texto simples para um vetor, realizado um map para pegar só a tag
+    if (tags) { 
+      const filterTags = tags.split(',').map(tag => tag) 
       
       notes = await knex("tags")
       .select([
@@ -68,19 +68,19 @@ class NotesController{
       ])
       .where("notes.user_id", user_id)
       .whereLike("notes.title", `%${title}%`)
-      .whereIn("name", filterTags) // Busque na tabela notes e compare os nomes com os nomes informados no vetor
-      .innerJoin("notes", "notes.id", "tags.note_id") // Realizando busca em duas tabelas usando o innerJoin
+      .whereIn("name", filterTags) 
+      .innerJoin("notes", "notes.id", "tags.note_id") 
       .orderBy("notes.title")
 
-    } else { // Se não foi informado uma tag faça a busca por notas
+    } else { 
       notes = await knex("notes")
       .where({ user_id, })
       .whereLike("title", `%${title}%`)
-      .orderBy("title") // Busque na tabela notes onde o user id seja igual ao informado e onde o titulo contenha a palavra informada e ordene por título
+      .orderBy("title")
     }
 
-    const userTags = await knex("tags").where({ user_id }) // Buscando na tabela tags as tags que pertencem ao user_id informado
-    const notesWithTags = notes.map(note => { // Juntando as notas e as tags
+    const userTags = await knex("tags").where({ user_id }) 
+    const notesWithTags = notes.map(note => { 
     const noteTags = userTags.filter(tag => tag.note_id === note.id)
       
       return {
