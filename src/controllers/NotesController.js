@@ -4,7 +4,7 @@ const AppError = require("../utils/AppError")
 class NotesController{
   async create(request, response){
     const { title, description, rating, tags } = request.body
-    const { user_id } = request.params
+    const { user_id } = request.params  
 
     const ratingIsNumber = Math.round(rating) 
 
