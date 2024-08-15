@@ -1,6 +1,5 @@
-const config = require("../../../knexfile") // Importando o arquivo knexfile
-const knex = require("knex") // Importando o knex
+const config = require("../../../knexfile") 
+const knex = require("knex") 
+const connection = knex(config.development) 
 
-const connection = knex(config.development) // Criando a conexão
-
-module.exports = connection // Exportando a conexão do knex com o banco de dados
+module.exports = connection 
